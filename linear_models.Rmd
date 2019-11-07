@@ -80,4 +80,23 @@ fit %>%
   broom::glance()
 ```
 
+# Diagnostics
+```{r}
+# The modelr package can be used to add residuals and fitted values to a dataframe.
+
+# add the model info to the originial dataset
+modelr::add_residuals(nyc_airbnb, fit) %>% 
+  ggplot(aes(x = boro, y = resid)) +
+  geom_violin() + 
+  ylim(-500, 500)
+
+modelr::add_residuals(nyc_airbnb, fit) %>% 
+  ggplot(aes(x = stars, y = resid)) +
+  geom_point() + 
+  ylim(-500, 500)
+
+modelr::add_predictions(nyc_airbnb, fit) %>% 
+  ggplot(aes(x = stars, y = pred)) +
+  geom_point()
+```
 

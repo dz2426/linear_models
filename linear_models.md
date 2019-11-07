@@ -137,3 +137,40 @@ fit %>%
     ##       <dbl>         <dbl> <dbl>     <dbl>     <dbl> <int>   <dbl>  <dbl>
     ## 1    0.0342        0.0341  182.      271. 6.73e-229     5 -2.02e5 4.04e5
     ## # … with 3 more variables: BIC <dbl>, deviance <dbl>, df.residual <int>
+
+# Diagnostics
+
+``` r
+# The modelr package can be used to add residuals and fitted values to a dataframe.
+
+# add the model info to the originial dataset
+modelr::add_residuals(nyc_airbnb, fit) %>% 
+  ggplot(aes(x = boro, y = resid)) +
+  geom_violin() + 
+  ylim(-500, 500)
+```
+
+    ## Warning: Removed 10202 rows containing non-finite values (stat_ydensity).
+
+![](linear_models_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+``` r
+modelr::add_residuals(nyc_airbnb, fit) %>% 
+  ggplot(aes(x = stars, y = resid)) +
+  geom_point() + 
+  ylim(-500, 500)
+```
+
+    ## Warning: Removed 10202 rows containing missing values (geom_point).
+
+![](linear_models_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+
+``` r
+modelr::add_predictions(nyc_airbnb, fit) %>% 
+  ggplot(aes(x = stars, y = pred)) +
+  geom_point()
+```
+
+    ## Warning: Removed 9962 rows containing missing values (geom_point).
+
+![](linear_models_files/figure-gfm/unnamed-chunk-7-3.png)<!-- -->
