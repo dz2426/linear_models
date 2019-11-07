@@ -1,0 +1,83 @@
+---
+title: "linear models"
+author: "Duzhi Zhao"
+date: "11/7/2019"
+output: github_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(p8105.datasets)
+
+set.seed(1)
+
+```
+
+# NYC airbnb dataset
+```{r}
+data("nyc_airbnb")
+
+nyc_airbnb = 
+  nyc_airbnb %>% 
+  mutate(stars = review_scores_location / 2) %>% 
+  rename(
+    boro = neighbourhood_group,
+    neighborhood = neighbourhood) %>% 
+  filter(boro != "Staten Island") %>% 
+  select(price, stars, boro, neighborhood, room_type)
+```
+
+## Fit a first linear model
+```{r}
+# Keeping boro fixed, how much price increases as one unit of stars increases
+fit = lm(price ~ stars + boro, data = nyc_airbnb)
+# if star goes up by one unit, price goes up by 31.99 dollars 
+
+summary(fit)
+coef(fit)
+summary(fit)$coef
+```
+
+## tidy the results instead!
+```{r}
+fit %>% 
+  broom::tidy() %>% 
+  mutate(term = str_replace(term, "boro", "Boro: ")) %>% 
+  knitr::kable(digits = 3)
+```
+
+## Take a look at factors
+```{r}
+# Factor ordered based on frequency. 1: most frequent
+nyc_airbnb = 
+  nyc_airbnb %>% 
+  mutate(
+    boro = fct_infreq(boro),
+    room_type = fct_infreq(room_type)
+  )
+
+# factor 1: most common ---- Manhattan
+```
+
+## Refit the last model
+```{r}
+fit = lm(price~ stars + boro, data = nyc_airbnb)
+
+# Now the reference category is the most frequent factor: Manhattan instead of Bronx
+fit %>% 
+  broom::tidy() %>% 
+  mutate(term = str_replace(term, "boro", "Boro: "))
+
+# p-value: is this regression coefficient significant?
+```
+
+## broom::glance()
+```{r}
+# p-value here: F stats to the whole model
+fit %>% 
+  broom::glance()
+```
+
+
