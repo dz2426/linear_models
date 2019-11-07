@@ -80,7 +80,7 @@ fit %>%
   broom::glance()
 ```
 
-# Diagnostics
+## Diagnostics
 ```{r}
 # The modelr package can be used to add residuals and fitted values to a dataframe.
 
@@ -99,4 +99,58 @@ modelr::add_predictions(nyc_airbnb, fit) %>%
   ggplot(aes(x = stars, y = pred)) +
   geom_point()
 ```
+
+## Nesting data
+```{r}
+fit_interaction = lm(price ~ stars * boro, data = nyc_airbnb)
+fit_interaction %>% 
+  broom::tidy()
+# price depends more stars; in bronx, brooklyn queens, star does not influence price much
+
+fit_interaction = lm(price ~ stars * boro + room_type * boro, data = nyc_airbnb)
+fit_interaction %>% 
+  broom::tidy()
+```
+
+```{r}
+nyc_airbnb %>% 
+  filter(boro == "Brooklyn") %>% 
+  lm(price ~ stars + room_type, data = .) %>% 
+  broom::tidy()
+```
+
+## Map this instead
+```{r}
+nyc_airbnb %>% 
+  nest(data = -boro) %>% 
+  mutate(
+    models = map(.x = data, ~lm(price ~ stars + room_type, data = .x)),
+    results = map(models, broom::tidy)
+  ) %>% 
+  select(boro, results) %>% 
+  unnest(results)
+```
+
+## Nest neighborhoods
+```{r}
+manhattan_nest_lm_res =
+  nyc_airbnb %>% 
+  filter(boro == "Manhattan") %>% 
+  nest(data = -neighborhood) %>% 
+  mutate(
+    models = map(.x = data, ~lm(price ~ stars + room_type, data = .x)),
+    results = map(models, broom::tidy)
+  ) %>% 
+  select(neighborhood, results) %>% 
+  unnest(results)
+
+# plot
+manhattan_nest_lm_res %>% 
+  filter(str_detect(term, "room_type")) %>% 
+  ggplot(aes(x = neighborhood, y = estimate)) + 
+  geom_point() + 
+  facet_wrap(~term) + 
+  theme(axis.text.x = element_text(angle = 80, hjust = 1))
+```
+
 
