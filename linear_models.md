@@ -198,6 +198,7 @@ fit_interaction %>%
 ``` r
 # price depends more stars; in bronx, brooklyn queens, star does not influence price much
 
+# star ratings and room type affects price differently in each borough
 fit_interaction = lm(price ~ stars * boro + room_type * boro, data = nyc_airbnb)
 fit_interaction %>% 
   broom::tidy()
@@ -222,6 +223,10 @@ fit_interaction %>%
     ## 14 boroBrooklyn:room_typeShared room     47.8      13.9     3.44   5.83e- 4
     ## 15 boroQueens:room_typeShared room       58.7      17.9     3.28   1.05e- 3
     ## 16 boroBronx:room_typeShared room        83.1      42.5     1.96   5.03e- 2
+
+``` r
+# Output: the expected change in price comparing an entire apartment to a private room in Queens, for example, involves the main effect of room type and the Queens / private room interaction
+```
 
 ``` r
 nyc_airbnb %>% 
